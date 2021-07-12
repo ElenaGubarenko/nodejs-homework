@@ -1,121 +1,142 @@
-// const fs = require("fs").promises
-const uniqid = require("uniqid")
-const contacts = require("../model/contacts.json")
-const contactSchema = require("../utils/contactSchema")
+const Contact = require("../utils/contactSchema")
 
-const listContacts = (req, res) => {
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      result: contacts,
-    },
-  })
-}
-
-const getContactById = async (req, res) => {
-  const { contactId } = req.params
-  console.log(contactId)
-  const selectContact = contacts.find((contact) => {
-    console.log(contact.id)
-    return contact.id === Number(contactId)
-  })
-  console.log(selectContact)
-  if (!selectContact) {
-    res.status(404).json({
-      status: "error",
-      code: 404,
-      message: "Contact not found",
+const listContacts = async (req, res, next) => {
+  try {
+    const selectContact = await Contact.find({})
+    console.log(`selectContact: ${selectContact}`)
+    res.json({
+      status: "success",
+      code: 200,
+      data: {
+        result: selectContact,
+      },
     })
-    return
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
   }
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      result: selectContact,
-    },
-  })
 }
 
-const removeContact = async (req, res) => {
+const getContactById = async (req, res, next) => {
   const { contactId } = req.params
-  const selectContact = contacts.find((contact) => contact.id === Number(contactId))
-  const updatedContacts = contacts.filter((contact) => contact.id !== Number(contactId))
-  // console.log(updatedContacts)
 
-  if (!selectContact) {
-    res.status(404).json({
-      status: "error",
-      code: 404,
-      message: "Contact not found",
+  try {
+    const selectContact = await Contact.find({ _id: contactId })
+    console.log(`selectContact: ${selectContact}`)
+    res.json({
+      status: "success",
+      code: 200,
+      data: {
+        result: selectContact,
+      },
     })
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
   }
-  res.status(200).json({
-    status: "success",
-    code: "200",
-    message: "Removed",
-    data: {
-      removedContact: selectContact,
-      updatedContacts,
-    },
-  })
 }
 
-const addContact = async (req, res) => {
-  const { error } = contactSchema.validate(req.body)
+const removeContact = async (req, res, next) => {
+  const { contactId } = req.params
 
-  if (error) {
-    res.status(400).json({
+  try {
+    const selectContact = await Contact.findByIdAndRemove({ _id: contactId })
+    console.log(`selectContact: ${selectContact}`)
+    res.status(200).json({
+      status: "success",
+      code: "200",
+      message: "Removed",
+      data: {
+        removedContact: selectContact,
+      },
+    })
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
+  }
+}
+
+const addContact = async (req, res, next) => {
+  const { body } = req
+
+  try {
+    const newContact = await Contact.create(body)
+    console.log(`newContact: ${newContact}`)
+
+    res.status(201).json({
+      status: "success",
+      code: 201,
+      data: {
+        result: newContact,
+      },
+    })
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
+  }
+}
+
+const updateContact = async (req, res, next) => {
+  const { contactId } = req.params
+  const { body } = req
+
+  try {
+    const newContact = await Contact.findByIdAndUpdate(contactId, body)
+    console.log(`newContact: ${newContact}`)
+
+    res.status(201).json({
+      status: "success",
+      code: 201,
+      data: {
+        result: newContact,
+      },
+    })
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
+  }
+}
+
+const updateFavorite = async (req, res, next) => {
+   const { contactId } = req.params
+  const { body } = req
+
+  try {
+    const newContact = await Contact.findByIdAndUpdate(contactId, body)
+    console.log(`newContact: ${newContact}`)
+
+    if(!body){
+      res.status(400).json({
       status: "error",
       code: 400,
-      message: error.message,
+     message:  "missing field favorite"
     })
-  }
-  const newContact = {
-    ...req.body,
-    id: uniqid(),
-  }
-  console.log(newContact)
-  contacts.push(newContact)
+    }
 
-  res.status(201).json({
-    status: "success",
-    code: 201,
-
-    data: {
-      result: newContact,
-      updatedContacts: contacts,
-    },
-  })
-}
-
-const updateContact = async (req, res) => {
-  const { contactId } = req.params
-  const selectIndex = contacts.findIndex((contact) => contact.id === Number(contactId)
-    
-  if (selectIndex === -1) {
-    res.status(404).json({
-      status: "error",
-      code: 404,
-      message: "Contact not found",
+    res.status(201).json({
+      status: "success",
+      code: 201,
+      data: {
+        result: newContact,
+      },
     })
+  } catch (error) {
+    if (error.code === 11000) {
+      error.code = 400
+    }
+    next(error)
   }
-
-  contacts[selectIndex] = {
-    ...contacts[selectIndex],
-    ...req.body,
-    id: uniqid(),
-  }
-
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      updatedContacts: contacts,
-    },
-  })
-}
+ }
 
 module.exports = {
   listContacts,
@@ -123,4 +144,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  updateFavorite,
 }
