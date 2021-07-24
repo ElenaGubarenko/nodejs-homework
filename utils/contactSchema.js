@@ -7,9 +7,3 @@ const contactSchema = Joi.object({
 })
 
 module.exports = contactSchema
-
-// {
-//     "name": "lalala",
-//     "email": "lalalala@mail.com",
-//     "phone": "80299999999"
-// }
