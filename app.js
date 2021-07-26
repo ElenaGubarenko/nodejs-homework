@@ -4,10 +4,10 @@ const cors = require("cors")
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 dotenv.config()
-// const { DB_HOST } = process.env
-// console.log(DB_HOST)
+const { DB_HOST, PORT = 3000 } = process.env
 
 const contactsRouter = require("./routes/api/contacts")
+const userRouter = require("./routes/api/auth")
 
 const app = express()
 
@@ -17,6 +17,7 @@ app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
 
+app.use("/users", userRouter)
 app.use("/api/contacts", contactsRouter)
 
 app.use((req, res) => {
@@ -37,12 +38,14 @@ app.use((error, req, res, next) => {
   })
 })
 
-const { DB_HOST, PORT = 3000 } = process.env
+// const { DB_HOST, PORT = 3000 } = process.env
 
 mongoose
   .connect(DB_HOST, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
   })
   .then(() => {
     console.log(`Server running. Use our API on port: ${PORT}`)

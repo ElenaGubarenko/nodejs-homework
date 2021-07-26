@@ -12,7 +12,7 @@ const listContacts = async (req, res, next) => {
       },
     })
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.gfcode === 11000) {
       error.code = 400
     }
     next(error)
