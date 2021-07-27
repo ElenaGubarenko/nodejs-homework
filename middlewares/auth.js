@@ -1,6 +1,7 @@
 const passport = require("passport")
 const Joi = require("joi")
 require("../configs/passport-config")
+const services = require("../services/user")
 
 const auth = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (error, user) => {
@@ -38,4 +39,26 @@ const joiMiddleware = (req, res, next) => {
   next()
 }
 
-module.exports = { auth, joiMiddleware }
+const updateSubscriptionMiddleware = async (req, res, next) => {
+  try {
+    const { _id, subscription } = req.body
+    console.log(req.body)
+    const updateSubscription = await services.updateById(_id, { subscription: subscription })
+    console.log(updateSubscription)
+
+    res.json({
+      status: "updated",
+      code: 200,
+      data: {
+        previosSubscription: updateSubscription.subscription,
+        newSubscription: subscription,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+  next()
+}
+
+module.exports = { auth, joiMiddleware, updateSubscriptionMiddleware }

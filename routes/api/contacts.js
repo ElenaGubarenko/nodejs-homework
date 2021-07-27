@@ -5,6 +5,8 @@ const middleware = require("../../middlewares/contactsMiddleware")
 
 // router.get("/", functions.listContacts)
 
+router.get("/", middleware.getOnlyFavoriteMiddleware, functions.listContacts)
+
 router.get("/", middleware.paginateMiddleware, functions.listContacts)
 
 router.get("/:contactId", functions.getContactById)
