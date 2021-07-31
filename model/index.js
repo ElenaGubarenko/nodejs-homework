@@ -12,7 +12,7 @@ const listContacts = async (req, res, next) => {
       },
     })
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.gfcode === 11000) {
       error.code = 400
     }
     next(error)
@@ -108,19 +108,19 @@ const updateContact = async (req, res, next) => {
 }
 
 const updateFavorite = async (req, res, next) => {
-   const { contactId } = req.params
+  const { contactId } = req.params
   const { body } = req
 
   try {
     const newContact = await Contact.findByIdAndUpdate(contactId, body)
     console.log(`newContact: ${newContact}`)
 
-    if(!body){
+    if (!body) {
       res.status(400).json({
-      status: "error",
-      code: 400,
-     message:  "missing field favorite"
-    })
+        status: "error",
+        code: 400,
+        message: "missing field favorite",
+      })
     }
 
     res.status(201).json({
@@ -136,7 +136,7 @@ const updateFavorite = async (req, res, next) => {
     }
     next(error)
   }
- }
+}
 
 module.exports = {
   listContacts,

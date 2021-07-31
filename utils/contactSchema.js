@@ -1,12 +1,5 @@
-// const Joi = require("joi")
-
-// const contactSchema = Joi.object({
-//   name: Joi.string().min(2).required(),
-//   email: Joi.string().email().required(),
-//   phone: Joi.number().required(),
-// })
-
 const { Schema, model } = require("mongoose")
+const mongoosePaginate = require("mongoose-paginate-v2")
 
 const contactSchema = Schema(
   {
@@ -28,12 +21,8 @@ const contactSchema = Schema(
   { versionKey: false, timestamps: true }
 )
 
+contactSchema.plugin(mongoosePaginate)
+
 const Contact = model("contact", contactSchema)
 
 module.exports = Contact
-
-// {
-//     "name": "lalala",
-//     "email": "lalalala@mail.com",
-//     "phone": "80299999999"
-// }
