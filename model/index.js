@@ -12,7 +12,7 @@ const listContacts = async (req, res, next) => {
       },
     })
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.gfcode === 11000) {
       error.code = 400
     }
     next(error)
@@ -119,7 +119,7 @@ const updateFavorite = async (req, res, next) => {
       res.status(400).json({
         status: "error",
         code: 400,
-        message: "missing field favorite"
+        message: "missing field favorite",
       })
     }
 
