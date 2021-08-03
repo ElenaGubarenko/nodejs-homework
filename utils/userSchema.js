@@ -25,8 +25,9 @@ const userSchema = Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
-    avatarURL: {
+    avatarUrl: {
       type: String,
+      default: null,
     },
   },
   { versionKey: false, timestamps: true }

@@ -1,7 +1,15 @@
 // const User = require("../utils/userSchema")
 const services = require("../services/user")
 const jwt = require("jsonwebtoken")
+const gravatar = require("gravatar")
+const path = require("path")
+const fs = require("fs/promises")
+const avatarsDir = path.join(process.cwd(), "public/avatars")
+// const tempDir = path.join(process.cwd(), "tmp")
+const Jimp = require("jimp")
 require("dotenv").config()
+
+// console.log(avatarsDir)
 
 const register = async (req, res, next) => {
   const { email, password } = req.body
@@ -17,17 +25,18 @@ const register = async (req, res, next) => {
       return
     }
 
-    await services.addUser({ email, password })
+    const avatarUrl = gravatar.profile_url(email)
+    const newUser = await services.addUser({ email, password, avatarUrl })
     res.status(201).json({
       status: "success",
       code: 201,
       message: "success",
       data: {
-        email,
-        password,
+        newUser,
       },
     })
   } catch (error) {
+    console.log(error)
     next(error)
   }
 }
@@ -65,7 +74,6 @@ const login = async (req, res, next) => {
 }
 
 const logout = async (req, res, next) => {
-  // console.log(req)
   try {
     await services.updateById(req.user._id, { token: null })
     res.json({
@@ -95,9 +103,43 @@ const current = async (req, res, next) => {
   }
 }
 
+const updateAvatar = async (req, res, next) => {
+  const { path: filePath, originalname } = req.file
+  const userId = req.user._id
+  const dateNow = Date.now()
+  // console.log(dateNow)
+  const fileName = path.join(avatarsDir, `${originalname}_${userId}_${dateNow}`)
+
+  try {
+    await fs.rename(filePath, fileName)
+    await services.updateById(userId, { avatarUrl: fileName })
+    res.status(201).json({
+      status: "updatet",
+      code: 201,
+      newAvatar: fileName,
+    })
+
+    Jimp.read(fileName, (err, lenna) => {
+      if (err) throw err
+      lenna.resize(256, 256).quality(60)
+    })
+  } catch (error) {
+    res.json({
+      status: "error",
+      code: 401,
+      message: error.message,
+    })
+    console.log(error)
+
+    fs.unlink(filePath)
+    return next(error)
+  }
+}
+
 module.exports = {
   register,
   login,
   logout,
   current,
+  updateAvatar,
 }
