@@ -1,6 +1,7 @@
 // const User = require("../utils/userSchema")
 const services = require("../services/user")
 const jwt = require("jsonwebtoken")
+
 const gravatar = require("gravatar")
 const path = require("path")
 const fs = require("fs/promises")
@@ -10,6 +11,10 @@ const Jimp = require("jimp")
 require("dotenv").config()
 
 // console.log(avatarsDir)
+
+=======
+require("dotenv").config()
+
 
 const register = async (req, res, next) => {
   const { email, password } = req.body
@@ -25,18 +30,30 @@ const register = async (req, res, next) => {
       return
     }
 
+
     const avatarUrl = gravatar.profile_url(email)
     const newUser = await services.addUser({ email, password, avatarUrl })
+=======
+    await services.addUser({ email, password })
+
     res.status(201).json({
       status: "success",
       code: 201,
       message: "success",
       data: {
+
         newUser,
       },
     })
   } catch (error) {
     console.log(error)
+=======
+        email,
+        password,
+      },
+    })
+  } catch (error) {
+
     next(error)
   }
 }
@@ -74,6 +91,7 @@ const login = async (req, res, next) => {
 }
 
 const logout = async (req, res, next) => {
+
   try {
     await services.updateById(req.user._id, { token: null })
     res.json({
@@ -136,10 +154,15 @@ const updateAvatar = async (req, res, next) => {
   }
 }
 
+=======
+
 module.exports = {
   register,
   login,
   logout,
   current,
+
   updateAvatar,
+=======
+
 }

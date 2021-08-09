@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const functions = require("../../model/auth")
 const middlewares = require("../../middlewares/auth")
+
 const multer = require("multer")
 const path = require("path")
 const tempDir = path.join(process.cwd(), "tmp")
@@ -20,6 +21,9 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage })
+=======
+// const services = require("../../services/user")
+
 
 router.post("/register", middlewares.joiMiddleware, functions.register)
 
@@ -31,6 +35,9 @@ router.get("/current", middlewares.auth, functions.current)
 
 router.patch("/", middlewares.updateSubscriptionMiddleware)
 
+
 router.patch("/avatars", middlewares.auth, upload.single("avatar"), functions.updateAvatar)
+
+=======
 
 module.exports = router
